@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int    @id @default(autoincrement())
+  userName     String
+  email        String @unique
+  passwordHash String
+
+  comments Comment[]
+  photos   Photo[]
+}
+
+model Place {
+  id            Int     @id @default(autoincrement())
+  googleplaceID String  @unique
+  name          String
+  address       String
+  
+  comments Comment[]
+  photos   Photo[]
+}
+
+model Comment {
+  id          Int      @id @default(autoincrement())
+  commentText String
+  rating      Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userID  Int
+  placeID Int
+
+  user  User  @relation(fields: [userID], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  place Place @relation(fields: [placeID], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Photo {
+  id   Int    @id @default(autoincrement())
+  data Bytes
+  type String
+
+  userID  Int
+  placeID Int
+
+  user  User  @relation(fields: [userID], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  place Place @relation(fields: [placeID], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
