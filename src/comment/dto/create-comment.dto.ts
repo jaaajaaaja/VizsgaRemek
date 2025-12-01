@@ -1,6 +1,6 @@
 import { Transform, TransformFnParams } from "class-transformer";
-import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
-import * as sanitizeHtml from 'sanitize-html';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
+import sanitizeHtml from 'sanitize-html';
 
 export class CreateCommentDto {
     @IsNotEmpty()

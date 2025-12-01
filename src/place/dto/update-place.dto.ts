@@ -1,6 +1,6 @@
 import { Transform, TransformFnParams } from "class-transformer";
 import { IsNotEmpty, IsOptional, IsString } from "class-validator";
-import * as sanitizeHtml from 'sanitize-html';
+import sanitizeHtml from 'sanitize-html';
 
 export class UpdatePlaceDto {
     @IsOptional()

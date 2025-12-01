@@ -11,12 +11,17 @@ import { PlaceModule } from './place/place.module';
 import { PhotoService } from './photo/photo.service';
 import { PhotoController } from './photo/photo.controller';
 import { PhotoModule } from './photo/photo.module';
+import { UserController } from './user/user.controller';
+import { CommentController } from './comment/comment.controller';
+import { UserService } from './user/user.service';
+import { CommentService } from './comment/comment.service';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
     isGlobal: true,
-  }), PrismaModule, CommentModule, UserModule, PlaceModule, PhotoModule],
-  controllers: [AppController, PlaceController, PhotoController],
-  providers: [AppService, PlaceService, PhotoService],
+  }), PrismaModule, CommentModule, UserModule, PlaceModule, PhotoModule, AuthModule],
+  controllers: [AppController, PlaceController, PhotoController, UserController, CommentController],
+  providers: [AppService, PlaceService, PhotoService, UserService, CommentService],
 })
 export class AppModule {}

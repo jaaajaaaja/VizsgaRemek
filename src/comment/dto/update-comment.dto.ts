@@ -1,6 +1,6 @@
 import { Transform, TransformFnParams } from "class-transformer"
 import { IsInt, IsNotEmpty, IsOptional, IsString, Max, Min } from "class-validator"
-import * as sanitizeHtml from 'sanitize-html';
+import sanitizeHtml from 'sanitize-html';
 
 export class UpdateCommentDto {
     @IsOptional()
