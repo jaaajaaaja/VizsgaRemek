@@ -9,12 +9,13 @@ export class AuthService {
 
     async signIn(username: string, pass: string): Promise<any> {
         const user = await this.userService.findOne(username)        
-        if (user) {
-            if (!bcrypt.compare(user.password, pass)) {
-                throw new UnauthorizedException()
-            }
-        } else {
-            return 'No user found'
+        if (!user) {
+            throw new UnauthorizedException('No user found')
+        }
+
+        const passwordMatch = await bcrypt.compare(pass, user.password)
+        if (!passwordMatch) {
+            throw new UnauthorizedException('Invalid credentials')
         }
 
         // const { password, ...result } = user 

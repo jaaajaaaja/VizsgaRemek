@@ -20,7 +20,8 @@ export class UserController {
 
     @Post()
     async add(@Body() body: CreateUserDto) {
-        const salt = await bcrypt.genSalt(20);
+        // 20-as cost factor nagyon lassú, fejlesztéshez/általános használatra 10 bőven elég
+        const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(body.password, salt);
 
         return this.userService.add({

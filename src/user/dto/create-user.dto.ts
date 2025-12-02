@@ -1,5 +1,5 @@
 import { Transform, TransformFnParams } from "class-transformer";
-import { IsEmail, IsNotEmpty, IsString, Min } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, MinLength } from "class-validator";
 import sanitizeHtml from 'sanitize-html';
 
 export class CreateUserDto {
@@ -15,6 +15,6 @@ export class CreateUserDto {
 
     @IsNotEmpty()
     @IsString()
-    @Min(8)
+    @MinLength(8)
     password:string
 }
