@@ -17,7 +17,8 @@ export class AuthService {
             return 'No user found'
         }
 
-        // const { password, ...result } = user
+        // const { password, ...result } = user 
+        //proba commit
 
         const payload = { sub: user.id, username:user.userName }
 
