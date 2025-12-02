@@ -3,19 +3,21 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UserModule } from 'src/user/user.module';
 import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   controllers: [AuthController],
   providers: [AuthService],
   imports: [
-    UserModule,
+    ConfigModule.forRoot({
+      isGlobal: true
+    }),
     JwtModule.register({
       global: true,
-      // Ha nincs JWT_SECRET env változó, használ egy fejlesztői default értéket,
-      // így nem dob hibát indításkor.
-      secret: process.env.JWT_SECRET ?? 'dev-jwt-secret-change-me',
-      signOptions: { expiresIn: '15m' },
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '15m' }
     }),
+    UserModule,
   ],
 })
-export class AuthModule {}
+export class AuthModule { }

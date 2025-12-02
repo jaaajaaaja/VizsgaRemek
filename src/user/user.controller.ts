@@ -13,14 +13,13 @@ export class UserController {
         return this.userService.findAll()
     }
 
-    @Get(':username')
-    async getOne(@Param('username') username: string) {
-        return this.userService.findOne(username)
+    @Get(':email')
+    async getOne(@Param('email') email: string) {
+        return this.userService.findOne(email)
     }
 
     @Post()
     async add(@Body() body: CreateUserDto) {
-        // 20-as cost factor nagyon lassú, fejlesztéshez/általános használatra 10 bőven elég
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(body.password, salt);
 
