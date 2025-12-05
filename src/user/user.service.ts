@@ -16,6 +16,12 @@ export class UserService {
     }
 
     async add(data: CreateUserDto) {
+        const user = await this.findOne(data.email);
+
+        if (user != null) {
+            return { "error": "Email already in use" };
+        }
+
         return this.prisma.user.create({ data })
     }
 
