@@ -22,6 +22,59 @@ export class PhotoController {
         return response.set({ "Content-Type": res?.type }).send(res?.data);
     }
 
+    /*
+    TODO: mukodjon 
+
+    @Get('/getAllByUser/:userID')
+    async getAllByUser(@Param('userID') userID: string, @Response() response: Res) {
+        const res = await this.photoService.getAllByUser(Number(userID))
+
+        if (res.length === 0) {
+            return { "message": "Még nem töltött fel képet" }
+        }
+
+        const photosBase64 = res.map(p => ({
+            id: p.id,
+            type: p.type,
+            data: Buffer.from(p.data).toString('base64'),
+            userID: p.userID
+        }))
+
+        return photosBase64
+
+        //res.forEach(e => {
+            //return response.set({ "Content-Type": e?.type }).send(e?.data);
+        //});
+        //return response.set({ "Content-Type": res?.type }).send(res?.data);
+
+    }
+
+    @Get('/getAllByPlace/:placeID')
+    async getAllByPlace(@Param('placeID') placeID: string, @Response() response: Res) {
+        const res = await this.photoService.getAllByPlace(Number(placeID))
+
+        if (res.length === 0) {
+            return { "message": "Még nem töltött fel képet egy felhasználó sem." }
+        }
+
+        const photosBase64 = res.map(p => ({
+            id: p.id,
+            type: p.type,
+            data: Buffer.from(p.data).toString('base64'),
+            userID: p.userID
+        }))
+        return photosBase64
+
+        // http://localhost:3000/photo/getAllByPlace/1
+
+        // res.forEach(e => {
+        //     return response.set({ "Content-Type": e?.type }).send(e?.data);
+        // });
+        //return response.set({ "Content-Type": res?.type }).send(res?.data);
+
+    }
+    */
+
     @Delete(':id')
     async remove(@Param('id') id: string) {
         return this.photoService.remove(Number(id))

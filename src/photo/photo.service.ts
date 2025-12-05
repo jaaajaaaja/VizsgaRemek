@@ -15,6 +15,16 @@ export class PhotoService {
         return this.prisma.photo.findUnique({ where: { id } })
     }
 
+    /*
+    async getAllByUser(userID:number) {
+        return this.prisma.photo.findMany({ where: {userID: userID} })
+    }
+
+    async getAllByPlace(placeID:number) {
+        return this.prisma.photo.findMany({ where: {placeID: placeID} })
+    }
+    */
+
     async add(data: CreatePhotoDto) {
         // return this.prisma.photo.create({ data })
 
@@ -48,7 +58,7 @@ export class PhotoService {
     }
 
     async increaseMaxAllowedPacket() {
-        const size = 10 * 1024 * 1024; // 10 MB
+        const size = 2 * 1024 * 1024; // 10 MB
 
         await this.prisma.$executeRawUnsafe(
             `SET GLOBAL max_allowed_packet = ${size};`

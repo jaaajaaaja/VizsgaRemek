@@ -8,11 +8,41 @@ export class CommentService {
     constructor(private prisma: PrismaService) {}
 
     async findAll() {
-        return this.prisma.comment.findMany()
+        const comments = await this.prisma.comment.findMany()
+
+        if (comments.length === 0) {
+            return { "error": "Még nincsenek kommentek"}
+        }
+
+        return comments
     }
 
     async findOne(id:number) {
         return this.prisma.comment.findUnique({ where: {id} })
+    }
+
+    async findAllByUser(userID:number) {
+        const comments = await this.prisma.comment.findMany({ where: {userID} })
+
+        if(comments.length === 0) {
+            return { "message": "Még nincsenek kommentek" }
+        } else {
+            return comments
+        }
+    }
+
+    /*async findOneByUser(userID:number) {
+        const comments = await this.prisma.comment.findUnique({ where: {userID} })
+    }*/
+
+    async findAllByPlace(placeID:number) {
+        const comments = await this.prisma.comment.findMany({ where: {placeID: placeID} })
+
+        if(comments.length === 0) {
+            return { "message": "A helyhez még nincsenek kommentek" }
+        } else {
+            return comments
+        }
     }
 
     async add(data:CreateCommentDto) {

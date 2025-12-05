@@ -17,6 +17,21 @@ export class CommentController {
         return this.commentService.findOne(Number(id))
     }
 
+    @Get('/findAllByUser/:userID')
+    async getAllByUser(@Param('userID') userID:string) {
+        return this.commentService.findAllByUser(Number(userID))
+    }
+
+    /*@Get('/findOneByUser/:userID')
+    async getOneByUser(@Param('userID') userID:string) {
+        return this.commentService.findOneByUser(Number(userID))
+    }*/
+
+    @Get('/findAllByPlace/:placeID')
+    async findAllByPlace(@Param('placeID') placeID:string) {
+        return this.commentService.findAllByPlace(Number(placeID))
+    }
+
     @Post()
     async add(@Body() body:CreateCommentDto) {
         return this.commentService.add(body)
