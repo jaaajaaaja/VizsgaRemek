@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreatePhotoDto } from './dto/create-photo.dto';
-import { UpdatePhotoDto } from './dto/update-photo.dto';
 
 @Injectable()
 export class PhotoService {
@@ -12,58 +10,68 @@ export class PhotoService {
     }
 
     async getOne(id: number) {
-        return this.prisma.photo.findUnique({ where: { id } })
-    }
+        const photo = await this.prisma.photo.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                location: true,
+                type: true,
+                user: { select: { userName: true } },
+                place: { select: { name: true } }
+            }
+        })
 
-    /*
-    async getAllByUser(userID:number) {
-        return this.prisma.photo.findMany({ where: {userID: userID} })
-    }
+        if (!photo) return "Nincs ilyen fotó";
 
-    async getAllByPlace(placeID:number) {
-        return this.prisma.photo.findMany({ where: {placeID: placeID} })
-    }
-    */
-
-    async add(data: CreatePhotoDto) {
-        // return this.prisma.photo.create({ data })
-
-        const buffer = Buffer.isBuffer(data.data) ? data.data : Buffer.from(data.data as any)
-        const createPayload = {
-            data: buffer,
-            type: data.type,
-            userID: data.userID,
-            placeID: data.placeID,
+        return {
+            id: photo.id,
+            location: photo.location,
+            type: photo.type,
+            userName: photo.user.userName,
+            placeName: photo.place.name
         }
+    }
 
-        return this.prisma.photo.create({ data: createPayload })
+    async getAllByUser(userID: number) {
+        return this.prisma.photo.findMany({
+            where: { userID: userID },
+            select: {
+                id: true,
+                location: true,
+                type: true,
+                user: { select: { userName: true } },
+                place: { select: { name: true } }
+            }
+        })
+    }
+
+    async getAllByPlace(placeID: number) {
+        return this.prisma.photo.findMany({
+            where: { userID: placeID },
+            select: {
+                id: true,
+                location: true,
+                type: true,
+                user: { select: { userName: true } },
+                place: { select: { name: true } }
+            }
+        })
+    }
+
+    async add(file: Express.Multer.File, userID: number, placeID: number) {
+        const fileName = `${Date.now()}-${Math.floor(Math.random() * 10000)}`
+
+        return this.prisma.photo.create({
+            data: {
+                location: `/uploads/${file.filename}`,
+                type: file.mimetype,
+                userID: userID,
+                placeID: placeID,
+            },
+        })
     }
 
     async remove(id: number) {
         return this.prisma.photo.delete({ where: { id } })
-    }
-
-    async update(id: number, data: UpdatePhotoDto) {
-        //return this.prisma.photo.update({ where: {id}, data })
-
-        const buffer = Buffer.isBuffer(data.data) ? data.data : Buffer.from(data.data as any)
-        const createPayload = {
-            data: buffer,
-            type: data.type,
-            userID: data.userID,
-            placeID: data.placeID,
-        }
-
-        return this.prisma.photo.update({ where: { id }, data: createPayload })
-    }
-
-    async increaseMaxAllowedPacket() {
-        const size = 2 * 1024 * 1024; // 10 MB
-
-        await this.prisma.$executeRawUnsafe(
-            `SET GLOBAL max_allowed_packet = ${size};`
-        );
-
-        return 'max_allowed_packet updated';
     }
 }

@@ -1,11 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseInterceptors, Response } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { memoryStorage } from 'multer';
-import type { Express } from 'express';
+import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseInterceptors, Response, UploadedFiles } from '@nestjs/common';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { diskStorage, memoryStorage } from 'multer';
 import { PhotoService } from './photo.service';
-import { FileValidationPipe } from 'src/common/validators/file-validation.pipe';
-import { UpdatePhotoDto } from './dto/update-photo.dto';
-import type { Response as Res } from 'express';
+import { extname } from 'path';
+import { Photo } from 'generated/prisma/client';
 
 @Controller('photo')
 export class PhotoController {
@@ -17,88 +15,63 @@ export class PhotoController {
     }
 
     @Get(':id')
-    async getOne(@Param('id') id: string, @Response() response: Res) {
-        const res = await this.photoService.getOne(Number(id))
-        return response.set({ "Content-Type": res?.type }).send(res?.data);
+    async getOne(@Param('id') id: string) {
+        return this.photoService.getOne(Number(id))
     }
 
-    /*
-    TODO: mukodjon 
-
     @Get('/getAllByUser/:userID')
-    async getAllByUser(@Param('userID') userID: string, @Response() response: Res) {
-        const res = await this.photoService.getAllByUser(Number(userID))
+    async getAllByUser(@Param('userID') userID: string) {
+        return this.photoService.getAllByUser(Number(userID))
 
-        if (res.length === 0) {
-            return { "message": "Még nem töltött fel képet" }
-        }
-
-        const photosBase64 = res.map(p => ({
-            id: p.id,
-            type: p.type,
-            data: Buffer.from(p.data).toString('base64'),
-            userID: p.userID
-        }))
-
-        return photosBase64
-
-        //res.forEach(e => {
-            //return response.set({ "Content-Type": e?.type }).send(e?.data);
-        //});
-        //return response.set({ "Content-Type": res?.type }).send(res?.data);
-
+        // http://localhost:3000/photo/getAllByUser/1
     }
 
     @Get('/getAllByPlace/:placeID')
-    async getAllByPlace(@Param('placeID') placeID: string, @Response() response: Res) {
-        const res = await this.photoService.getAllByPlace(Number(placeID))
-
-        if (res.length === 0) {
-            return { "message": "Még nem töltött fel képet egy felhasználó sem." }
-        }
-
-        const photosBase64 = res.map(p => ({
-            id: p.id,
-            type: p.type,
-            data: Buffer.from(p.data).toString('base64'),
-            userID: p.userID
-        }))
-        return photosBase64
+    async getAllByPlace(@Param('placeID') placeID: string) {
+        return this.photoService.getAllByUser(Number(placeID))
 
         // http://localhost:3000/photo/getAllByPlace/1
-
-        // res.forEach(e => {
-        //     return response.set({ "Content-Type": e?.type }).send(e?.data);
-        // });
-        //return response.set({ "Content-Type": res?.type }).send(res?.data);
-
     }
-    */
 
     @Delete(':id')
     async remove(@Param('id') id: string) {
         return this.photoService.remove(Number(id))
     }
 
-    @Put(':id')
-    async update(@Param('id') id: string, @Body() data: UpdatePhotoDto) {
-        this.photoService.increaseMaxAllowedPacket();
-
-        return this.photoService.update(Number(id), data)
-    }
-
     @Post()
-    @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
-    async uploadFile(@UploadedFile(new FileValidationPipe()) file: Express.Multer.File,
-        @Body('userID') userID: string, @Body('placeID') placeID: string) {
+    @UseInterceptors(FilesInterceptor('file', 3, {
+        storage: diskStorage({
+            destination: './uploads',
+            filename: (req, file, callback) => {
+                const randomName = Date.now() + extname(file.originalname);
+                callback(null, randomName);
+            }
+        }),
+        limits: { fileSize: 2 * 1024 * 1024 },
+        fileFilter: (req, file, callback) => {
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']
 
-        this.photoService.increaseMaxAllowedPacket();
+            if (!allowedTypes.includes(file.mimetype)) {
+                return callback(new Error('Csak képet lehet feltölteni!'), false)
+            }
 
-        return this.photoService.add({
-            data: file.buffer,             //new Uint8Array()
-            type: file.mimetype,
-            userID: Number(userID),
-            placeID: Number(placeID)
-        })
+            callback(null, true);
+        }
+    }))
+    async uploadFile(@UploadedFiles() files: Express.Multer.File[], @Body() body: { userID: string; placeID: string }) {
+        const userID = Number(body.userID)
+        const placeID = Number(body.placeID)
+
+        const createdPhotos:Photo[] = []
+
+        for (const file of files) {
+            const newPhoto = await this.photoService.add(file, userID, placeID)
+            createdPhotos.push(newPhoto);
+        }
+
+        return {
+            message: 'File uploaded successfully',
+            images: createdPhotos
+        }
     }
 }

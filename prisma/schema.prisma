@@ -50,9 +50,9 @@ model Comment {
 }
 
 model Photo {
-  id   Int    @id @default(autoincrement())
-  data Bytes
-  type String
+  id       Int    @id @default(autoincrement())
+  location String
+  type     String
 
   userID  Int
   placeID Int
