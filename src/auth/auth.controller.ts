@@ -10,10 +10,7 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     @Post('login')
     async signIn(@Body() body: Record<string, any>) {
-        const salt = await bcrypt.genSalt(10)
-        const hashedPass = await bcrypt.hash(body.password, salt)
-
-        return this.authService.signIn(body.email, hashedPass)
+        return this.authService.signIn(body.email, body.password)
     }
 
     @UseGuards(AuthGuard)

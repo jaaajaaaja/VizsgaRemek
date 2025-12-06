@@ -9,23 +9,21 @@ export class AuthService {
 
     async signIn(email: string, pass: string): Promise<any> {
         const user = await this.userService.findOne(email)
-        if (user) {
-            if (!bcrypt.compare(user.password, pass)) {
-                throw new UnauthorizedException()
-            }
-        } else {
-            return 'No user found'
+
+        if (!user) {
+            throw new UnauthorizedException()
         }
 
-        // const { password, ...result } = user 
-        //proba commit
+        const isPasswordValid = await bcrypt.compare(pass, user.password)
+        
+        if (!isPasswordValid) {
+            throw new UnauthorizedException()
+        }
 
-        const payload = { sub: user.id, username:user.userName }
+        const payload = { sub: user.id, username: user.userName }
 
         return {
             access_token: await this.jwtService.signAsync(payload)
         }
-
-        //return result
     }
 }
